@@ -1,6 +1,6 @@
 '''
 The Legend: Platformer
-V4.1.2 Beta
+V4.0.7 Beta
 By Sigton
 '''
 
@@ -618,13 +618,13 @@ class Player(pygame.sprite.Sprite):
             PLAYER_JUMP_HEIGHT = 10
             PLAYER_GRAVITY = 0.35
 
-class Sword(pygame.sprite.Sprite):
+class Tool(pygame.sprite.Sprite):
 
     ''' Sword item for player to hold when attacking '''
 
     player = None
 
-    def __init__(self, player):
+    def __init__(self, player, tool):
 
         ''' Constructor '''
 
@@ -638,21 +638,32 @@ class Sword(pygame.sprite.Sprite):
 
         # Then set the image
 
-        self.imageR = self.spriteSheet.get_image(236,0,39,18)
-        self.imageL = pygame.transform.flip(self.imageR, True, False)
+        self.imageSwordR = self.spriteSheet.get_image(236,0,39,18)
+        self.imageSwordL = pygame.transform.flip(self.imageR, True, False)
 
+        if tool = "sword":
+            self.imageR = self.imageSwordR
+        else:
+            self.imageL = self.imageSwordL
+    
         self.player = player
-        self.swordXOff = 20
-        self.swordYOff = 40
+
+        self.offsets = {
+            "swords":[20,40],
+            "shields":[0,0]
+            }
+
+        self.xOff = self.offsets[tool][0]
+        self.yOff = self.offsets[tool][1]
         
         if self.player.direction == "R": 
             self.image = self.imageR
             self.rect = self.image.get_rect()
-            self.rect.topleft = (self.player.rect.x+self.swordXOff,self.player.rect.y+self.swordYOff)
+            self.rect.topleft = (self.player.rect.x+self.xOff,self.player.rect.y+self.yOff)
         else:
             self.image = self.imageL
             self.rect = self.image.get_rect()
-            self.rect.topleft = (self.player.rect.x-self.swordXOff,self.player.rect.y+self.swordYOff)
+            self.rect.topleft = (self.player.rect.x-self.xOff,self.player.rect.y+self.yOff)
 
     def update(self):
 
@@ -660,10 +671,10 @@ class Sword(pygame.sprite.Sprite):
 
         if self.player.direction == "R":
             self.image = self.imageR
-            self.rect.topleft = (self.player.rect.x+self.swordXOff,self.player.rect.y+self.swordYOff)
+            self.rect.topleft = (self.player.rect.x+self.xOff,self.player.rect.y+self.yOff)
         else:
             self.image = self.imageL
-            self.rect.topleft = (self.player.rect.x-self.swordXOff,self.player.rect.y+self.swordYOff)
+            self.rect.topleft = (self.player.rect.x-self.xOff,self.player.rect.y+self.yOff)
 
 class Imp(pygame.sprite.Sprite):
 
@@ -671,10 +682,19 @@ class Imp(pygame.sprite.Sprite):
 
     ''' Attributes '''
 
+    # Set speed vector
+
     xv = 0
     yv = 0
 
     direction = "R"
+
+    # Arrays to hold the walking animations
+
+    walkingFramesR = []
+    walkingFramesL = []
+
+    # Other sprites to interact with
 
     level = None
     player = None
@@ -688,10 +708,33 @@ class Imp(pygame.sprite.Sprite):
 
         self.spriteSheet = SpriteSheet("Imp.png")
 
-        # Load the image
-        self.imageR = self.spriteSheet.get_image(0,0,36,70)
-        self.imageL = pygame.transform.flip(self.imageR, True, False)
+        # Load the images
+        image = self.spriteSheet.get_image(0,0,37,70)
+        self.walkingFramesR.append(image)
+        self.imageR = image
+        self.imageL = pygame.transform.flip(image, True, False)
+        image = self.spriteSheet.get_image(37,0,37,70)
+        self.walkingFramesR.append(image)
+        image = self.spriteSheet.get_image(74,0,40,70)
+        self.walkingFramesR.append(image)
+        image = self.spriteSheet.get_image(114,0,41,70)
+        self.walkingFramesR.append(image)
+        image = self.spriteSheet.get_image(155,0,41,70)
+        self.walkingFramesR.append(image)
+        image = self.spriteSheet.get_image(196,0,41,70)
+        self.walkingFramesR.append(image)
+        image = self.spriteSheet.get_image(237,0,40,70)
+        self.walkingFramesR.append(image)
+        image = self.spriteSheet.get_image(277,0,46,70)
+        self.walkingFramesR.append(image)
+        image = self.spriteSheet.get_image(323,0,37,70)
+        self.walkingFramesR.append(image)
+        image = self.spriteSheet.get_image(360,0,37,70)
 
+        for frame in self.walkingFramesR:
+            image = pygame.transform.flip(frame, True, False)
+            self.walkingFramesL.append(image)
+                
         self.image = self.imageR
 
         self.rect = self.image.get_rect()
@@ -707,11 +750,9 @@ class Imp(pygame.sprite.Sprite):
 
         if self.dist_to(self.player.rect.x, self.player.rect.y) < IMP_FOLLOW_DISTANCE and not self.on_edge():
             if self.direction == "R":
-                self.xv = 2
-                self.image = self.imageR
+                self.xv = 4
             else:
-                self.xv = -2
-                self.image = self.imageL
+                self.xv = -4
         else:
             self.xv = 0
 
@@ -739,7 +780,21 @@ class Imp(pygame.sprite.Sprite):
                 elif self.xv < 0:
                     self.rect.left = block.rect.right
                 self.xv = 0
-                
+        else:
+            self.xv = 0
+
+        if abs(self.xv) > 0.5:
+            if self.direction == "R":
+                frame = (self.rect.x // 30) % len(self.walkingFramesR)
+                self.image = self.walkingFramesR[frame]
+            else:
+                frame = (self.rect.x // 30) % len(self.walkingFramesL)
+                self.image = self.walkingFramesL[frame]
+        else:
+            if self.direction == "R":
+                self.image = self.imageR
+            else:
+                self.image = self.imageL
             
     def dist_to(self, x, y):
 
@@ -859,7 +914,7 @@ class Button(pygame.sprite.Sprite):
             
 class Image(pygame.sprite.Sprite):
 
-    # This is to allow images to be classed as sprites
+    # This is to allow images to be classed as sprites, cause I couldn't find another way to do that :P
 
     def __init__(self, image):
 
@@ -1019,6 +1074,10 @@ def main():
     clock = pygame.time.Clock()
 
     pygame.display.set_caption("Legend Rush V4.1.2 Beta")
+
+    '''
+    Run the menu
+    '''
 
     mainMenu()
 
