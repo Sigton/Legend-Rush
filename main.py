@@ -634,7 +634,7 @@ class Tool(pygame.sprite.Sprite):
 
         # Load images in from the player sprite sheet
 
-        self.spriteSheet = SpriteSheet("player.png")
+        self.spriteSheet = SpriteSheet("tools.png")
 
         # Then set the image
 
