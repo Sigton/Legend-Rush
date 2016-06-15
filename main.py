@@ -406,8 +406,10 @@ class Player(pygame.sprite.Sprite):
         # Load sounds
         self.jumpSound = pygame.mixer.Sound("Jump Sound.wav")
         self.deathSound = pygame.mixer.Sound("Death Sound.wav")
+        self.attackSound = pygame.mixer.Sound("Attack Sound.wav")
         self.jumpSound.set_volume(0.25)
         self.deathSound.set_volume(0.25)
+        self.attackSound.set_volume(0.25)
         
     def update(self):
         ''' Move the player '''
@@ -542,8 +544,9 @@ class Player(pygame.sprite.Sprite):
 
         self.attacking = 15
         self.showSword = True
-        self.sword = Sword(self)
+        self.sword = Tool(self,"sword")
         self.level.entityList.add(self.sword)
+        pygame.mixer.Sound.play(self.attackSound)
                         
     # Player-controlled movement
     def go_left(self,speed):
@@ -638,23 +641,18 @@ class Tool(pygame.sprite.Sprite):
 
         # Then set the image
 
-        self.imageSwordR = self.spriteSheet.get_image(236,0,39,18)
-        self.imageSwordL = pygame.transform.flip(self.imageR, True, False)
+        self.imageSwordR = self.spriteSheet.get_image(0,0,45,18)
+        self.imageSwordL = pygame.transform.flip(self.imageSwordR, True, False)
 
-        if tool = "sword":
+        if tool == "sword":
             self.imageR = self.imageSwordR
-        else:
             self.imageL = self.imageSwordL
     
         self.player = player
 
-        self.offsets = {
-            "swords":[20,40],
-            "shields":[0,0]
-            }
-
-        self.xOff = self.offsets[tool][0]
-        self.yOff = self.offsets[tool][1]
+        if tool == "sword":
+            self.xOff = 14
+            self.yOff = 40
         
         if self.player.direction == "R": 
             self.image = self.imageR
