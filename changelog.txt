@@ -1,0 +1,9 @@
+Legend Rush V4
+By Sigton (https://scratch.mit.edu/users/Sigton/ )
+
+Changelog V4.0.7
+
+- Added shielding
+- Added imp run cycle
+- Bugfixes
+- Improved some code here and there
