@@ -1092,7 +1092,7 @@ def main():
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
 
-    pygame.display.set_caption("Legend Rush V4.1.2 Beta")
+    pygame.display.set_caption("Legend Rush V4.0.7 Beta")
 
     '''
     Run the menu
