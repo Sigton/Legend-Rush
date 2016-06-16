@@ -352,7 +352,13 @@ class Player(pygame.sprite.Sprite):
     attacking = 0
     sword = None
 
+    # Shielding attributes
+    showShield = False
+    shielding = 0
+    shield = None
+
     ''' Methods '''
+    
     def __init__(self):
         ''' Constructor '''
 
@@ -384,18 +390,9 @@ class Player(pygame.sprite.Sprite):
         self.walkingFramesR.append(image)
 
         # Do the same, but flip them to left
-        image = spriteSheet.get_image(0,0,30,70)
-        image = pygame.transform.flip(image, True, False)
-        self.walkingFramesL.append(image)
-        image = spriteSheet.get_image(30,0,35,70)
-        image = pygame.transform.flip(image, True, False)
-        self.walkingFramesL.append(image)
-        image = spriteSheet.get_image(65,0,30,70)
-        image = pygame.transform.flip(image, True, False)
-        self.walkingFramesL.append(image)
-        image = spriteSheet.get_image(95,0,31,70)
-        image = pygame.transform.flip(image, True, False)
-        self.walkingFramesL.append(image)
+        for frame in self.walkingFramesR:
+            image = pygame.transform.flip(frame, True, False)
+            self.walkingFramesL.append(image)
 
         # Set the starting image
         self.image = self.standImgR
@@ -497,6 +494,10 @@ class Player(pygame.sprite.Sprite):
             self.level.entityList.remove(self.sword)
             self.sword = None
 
+        if self.shielding == 0 and self.showShield:
+            self.level.entityList.remove(self.shield)
+            self.shield = None
+            
         # Water Physics
 
         self.water_physics()
@@ -541,13 +542,23 @@ class Player(pygame.sprite.Sprite):
 
     def attack(self):
         ''' Called when user hits the space-bar '''
-
+        
         self.attacking = 15
         self.showSword = True
         self.sword = Tool(self,"sword")
         self.level.entityList.add(self.sword)
         pygame.mixer.Sound.play(self.attackSound)
-                        
+
+    def use_shield(self):
+        ''' Called by user '''
+
+        # Stops projectiles from doing damage
+        
+        self.shielding = 20
+        self.showShield = True
+        self.shield = Tool(self,"shield")
+        self.level.entityList.add(self.shield)
+        
     # Player-controlled movement
     def go_left(self,speed):
         ''' Called when user hits left arrow '''
@@ -644,15 +655,25 @@ class Tool(pygame.sprite.Sprite):
         self.imageSwordR = self.spriteSheet.get_image(0,0,45,18)
         self.imageSwordL = pygame.transform.flip(self.imageSwordR, True, False)
 
+        self.imageShieldR = self.spriteSheet.get_image(47,0,25,43)
+        self.imageShieldL = pygame.transform.flip(self.imageShieldR, True, False)
+
         if tool == "sword":
             self.imageR = self.imageSwordR
             self.imageL = self.imageSwordL
+        elif tool == "shield":
+            self.imageR = self.imageShieldR
+            self.imageL = self.imageShieldL
     
         self.player = player
 
         if tool == "sword":
             self.xOff = 14
             self.yOff = 40
+
+        elif tool == "shield":
+            self.xOff = 8
+            self.yOff = 24
         
         if self.player.direction == "R": 
             self.image = self.imageR
@@ -748,9 +769,9 @@ class Imp(pygame.sprite.Sprite):
 
         if self.dist_to(self.player.rect.x, self.player.rect.y) < IMP_FOLLOW_DISTANCE and not self.on_edge():
             if self.direction == "R":
-                self.xv = 4
+                self.xv = 3
             else:
-                self.xv = -4
+                self.xv = -3
         else:
             self.xv = 0
 
@@ -1108,8 +1129,11 @@ def main():
     imp = currentLevel.create_imp(2016, 434)
     activeSpriteList.add(imp)
 
+    # Vars to control the player
+
     jump = False
     attack = False
+    shield = False
     fullscreen = 0
     
     # Loop until the user clicks the close button
@@ -1139,9 +1163,14 @@ def main():
                         pygame.display.set_mode((size), FULLSCREEN)
                     else:
                         pygame.display.set_mode((size))
+
                 elif event.key == K_SPACE:
                     if player.on_ground():
                         attack = True
+    
+                elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
+                    if player.on_ground():
+                        shield = True
                     
             elif event.type == pygame.KEYUP:
                 if (event.key == pygame.K_LEFT or event.key == pygame.K_a) and player.xv < 0:
@@ -1151,7 +1180,7 @@ def main():
                 elif event.key == pygame.K_UP or event.key == pygame.K_w:
                     jump = False
 
-        # Player attacking and jumping
+        # Player attacking, shielding and jumping
 
         if jump:
             player.jump(PLAYER_JUMP_HEIGHT)
@@ -1160,15 +1189,24 @@ def main():
             if player.on_ground():
                 player.attack()
                 attack = False
+
+        if shield and player.shielding == 0:
+            if player.on_ground():
+                player.use_shield()
+                shield = False
                 
         if player.attacking > 0:
-                    player.stop()
-                    player.attacking -= 1
-        
+            player.stop()
+            player.attacking -= 1
+    
+        if player.shielding > 0:
+            player.stop()
+            player.shielding -= 1
+            
         # Update entities
         activeSpriteList.update()
         currentLevel.entityList.update()
-
+        
         # Player attacking scripts
 
         for imp in currentLevel.impList:
@@ -1194,7 +1232,7 @@ def main():
         '''
         ALL CODE TO DRAW SHOULD GO BELOW THIS COMMENT
         '''
-
+        
         currentLevel.draw(gameDisplay)
         activeSpriteList.draw(gameDisplay)
         currentLevel.entityList.draw(gameDisplay)
