@@ -1,4 +1,4 @@
-# Legend-Rush V4.0.6
+# Legend-Rush V4.1.0
 This is a platformer I am recreating in Python, which I originally made in Scratch :)
 
-I had an old repository for this, but I didn't really know how to use git so I thought I'd delete it and start again.
+I've started the layout of my repo again. One day I'll get it right :P
