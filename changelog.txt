@@ -1,9 +1,23 @@
-Legend Rush V4
+Legend Rush V1
 By Sigton (https://scratch.mit.edu/users/Sigton/ )
 
-Changelog V4.0.7
+Changelog V0.1.7
 
-- Added shielding
-- Added imp run cycle
-- Bugfixes
-- Improved some code here and there
+- Added changelog.
+- Added shielding.
+- Added imp run cycle.
+- Bugfixes.
+- Improved some code here and there.
+
+Changelog V0.1.8
+
+- A lot of underground work, mainly seperating out the source code.
+- Added terrain generation systen.
+- Added 5 new levels.
+- Added checkpoints.
+
+Changelog V0.1.9
+
+- Added knockback.
+- Added "Blobs".
+- AI improvements.
