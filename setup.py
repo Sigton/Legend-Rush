@@ -1,8 +1,8 @@
 import cx_Freeze
 
-executables = [cx_freeze.Executable("main.py")]
+executables = [cx_Freeze.Executable("main.py")]
 
-cx_freeze.setup(
+cx_Freeze.setup(
     name="Legend Rush",
     options={"build_exe": {"packages":["pygame",
                                        "json"],
@@ -50,6 +50,7 @@ cx_freeze.setup(
                                              "resources/sounds/Attack Sound.wav",
                                              "resources/sounds/Death Sound.wav",
                                              "resources/sounds/Jump Sound.wav",
-                                             "resources/sounds/Flight.mp3"]}}
+                                             "resources/sounds/Flight.mp3"]}},
+    executables=executables
     
     )
