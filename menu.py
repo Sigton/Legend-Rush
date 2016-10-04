@@ -108,7 +108,7 @@ def mainMenu(display, clock):
 
     pygame.mixer.music.load('resources/sounds/Flight.mp3')
 
-    #pygame.mixer.music.play(-1)
+    pygame.mixer.music.play(-1)
 
     # Set run time vars
 
